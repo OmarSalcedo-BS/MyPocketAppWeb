@@ -247,7 +247,7 @@ my-pocketWeb/
 
 ## 📝 Licencia
 
-Este proyecto es de **código abierto** y está disponible para cualquier persona que desee aprender, modificar o contribuir.
+Este proyecto es creado por mi, Omar Salcedo, es de **código abierto** y está disponible para cualquier persona que desee aprender, modificar o contribuir.
 
 ---
 
@@ -269,4 +269,4 @@ Si tienes preguntas, sugerencias o quieres colaborar, no dudes en abrir un **Iss
 
 ---
 
-**¡Happy Coding! 🚀**
+**¡Feliz codificación! 🚀**
