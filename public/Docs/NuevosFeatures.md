@@ -2,7 +2,7 @@
 
 Plantilla Rápida de Idea (COPIAR Y PEGAR)
 
-IDEA-000 [ESTADO: PENDIENTE]
+IDEA-000 [ESTADO: PENDIENTE 📅]
 
 Fecha: [YYYY-MM-DD]
 Categoría: [Ej: UX / Integración / Core / Ventas]
@@ -12,10 +12,27 @@ MVP Mínimo: ¿Cuál es la versión más simple que podemos construir para proba
 
 Reportes Existentes
 
-IDEA-001 [ESTADO: EN PROCESO] Omar Salcedo
+
+IDEA-001 [ESTADO: COMPLETADO 🏆] FEATURE ASIGNADO 🟥: Omar Salcedo
+
+Fecha: 2025-11-23
+Categoría: Inicio de sesión y registro
+Idea: Tener un inicio y registro que funcione, que tome a cuenta no repetir correos y confirmar contraseñas. Se 
+integrara con la base de datos para que funcione. Se integra SweetAlert para los mensajes de error y exito.
+Necesidad: Tener un inicio y registro que funcione.
+MVP Mínimo: Permitir la creación de cuentas y el inicio de sesión. todo guardado en un server-Json (Temporal).
+
+IDEA-002 [ESTADO: PENDIENTE 📅] FEATURE DISPONIBLE 🟢
 
 Fecha: 2025-11-18
-Categoría: Nuevos módulos
-Idea: Creación de módulos para la administración de cuentas y transacciones.
+Categoría: Cuentas y Transacciones
+Idea: Crear módulos para la administración de cuentas y transacciones.
 Necesidad: Crear módulos para la administración de cuentas y transacciones.
 MVP Mínimo: Permitir la creación de cuentas y transacciones.
+
+IDEA-003 [ESTADO: PENDIENTE 📅] FEATURE DISPONIBLE 🟢:
+Fecha: 2025-11-18
+Categoría: 
+Idea: 
+Necesidad: 
+MVP Mínimo: 
