@@ -17,6 +17,12 @@
       "name": "Pedro Nel",
       "email": "omard@test.com",
       "password": "solar1"
+    },
+    {
+      "id": "b85c",
+      "name": "Omar Salcedo",
+      "email": "omar2@test.com",
+      "password": "Soldado1"
     }
   ],
   "accounts": [],

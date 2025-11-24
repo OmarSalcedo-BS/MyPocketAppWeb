@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button'; // Asegúrate de tener este componente
-import { UserPlus, DollarSign, Loader } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
+import { UserPlus, Loader } from 'lucide-react';
 import { authService } from '../../services/authService';
-import { AlertCircle } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 
 export const RegisterPage = () => {
@@ -15,9 +15,7 @@ export const RegisterPage = () => {
         password: '',
         confirmPassword: ''
     });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -25,23 +23,25 @@ export const RegisterPage = () => {
             ...formData,
             [name]: value
         });
-        setError("");
     };
-
 
     const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
 
-        if (formData.password != formData.confirmPassword) {
-            setError("Las contraseñas no coinciden");
+        if (formData.password !== formData.confirmPassword) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Validación',
+                text: 'Las contraseñas no coinciden',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#4F46E5'
+            });
             setLoading(false);
             return;
         }
 
         const { confirmPassword, ...registerData } = formData;
-
 
         const result = await authService.register(registerData);
 
@@ -49,13 +49,38 @@ export const RegisterPage = () => {
             localStorage.setItem('token', 'true');
             localStorage.setItem('user', JSON.stringify(result.user));
 
+            // Toast de éxito
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: '¡Registro exitoso! 🎉',
+                text: 'Ahora puedes iniciar sesión'
+            });
+
             navigate("/login");
         } else {
-            setError(result.message);
+            // Modal de error
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al Registrarse',
+                text: result.message,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#4F46E5'
+            });
         }
 
         setLoading(false);
-
     };
 
     return (
@@ -83,14 +108,6 @@ export const RegisterPage = () => {
             </div>
 
             {/* DERECHA: Formulario de Registro */}
-
-            {/* Mensaje de Error */}
-            {error && (
-                <div className="mt-4 p-3 bg-rose-50 text-rose-600 rounded-lg flex items-center gap-2 text-sm">
-                    <AlertCircle size={18} />
-                    {error}
-                </div>
-            )}
 
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-100">
                 <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl border border-slate-100">

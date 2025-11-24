@@ -1,65 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
-import { DollarSign, TrendingUp, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { authService } from "../../services/authService";
-import { Modal } from "../../components/ui/Modal";
+import Swal from 'sweetalert2';
 
 
 export const LoginPage = () => {
   const navigate = useNavigate();
 
-  
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-
-     const [modalState, setModalState] = useState({
-        isOpen: false,
-        title: '',
-        message: '',
-        type: 'success', // 'success' o 'error'
-    });
-
-    const handleModalClose = () => {
-        const { redirect } = modalState;
-        setModalState({ isOpen: false, title: '', message: '', type: 'error', redirect: false });
-        if (!redirect) {
-            navigate('/login'); 
-        }
-    };
-
-    useEffect(() => {
-        let timer;
-        
-        // El temporizador se aplica SÓLO al modal de éxito con redirección
-        if (modalState.isOpen && modalState.type === 'success' && modalState.redirect) {
-            timer = setTimeout(() => {
-
-                handleModalClose(); 
-            }, 10000); // 10 segundos
-        }
-
-        // Limpieza: Cancela el temporizador si el estado cambia
-        return () => {
-            if (timer) {
-                clearTimeout(timer);
-            }
-        };
-    }, [modalState.isOpen, modalState.type, modalState.redirect]);
-
-
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name === 'password' ? 'password' : 'email']: e.target.value
     });
-     if (modalState.isOpen && modalState.type === 'error') {
-            setModalState(prev => ({ ...prev, isOpen: false }));
-        }
   };
-
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -71,43 +29,43 @@ export const LoginPage = () => {
       localStorage.setItem('token', 'true');
       localStorage.setItem('user', JSON.stringify(result.user));
       localStorage.setItem('name', result.user.name);
-      setTimeout(() => {
 
-        setModalState({
-                isOpen: true,
-                title: "¡Bienvenido de nuevo! 👋",
-                message: `Inicio de sesión exitoso. Serás redirigido al panel de control en 3 segundos.`,
-                type: 'success',
-                redirect: true 
-            });
-      }, 10000);
+      // Toast de éxito
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      });
+
+      Toast.fire({
+        icon: 'success',
+        title: '¡Bienvenido de nuevo! 👋',
+        text: `Inicio de sesión exitoso`
+      });
+
       navigate("/dashboard");
     } else {
-      setModalState({
-                isOpen: true,
-                title: "Error al Iniciar Sesión",
-                message: result.message,
-                type: 'error',
-                redirect: false
-            });
-
-     navigate("/login");
-  }
+      // Modal de error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Iniciar Sesión',
+        text: result.message,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#4F46E5'
+      });
+    }
     setLoading(false);
   };
 
 
   return (
     <div className="min-h-screen flex bg-slate-50">
-
-       {/* Modal de Alerta/Éxito */}
-            <Modal
-                isOpen={modalState.isOpen}
-                onClose={handleModalClose}
-                title={modalState.title}
-                message={modalState.message}
-                type={modalState.type}
-            />
 
       {/*Background a la izquierda con imagen (CÓDIGO ORIGINAL DEL USUARIO MANTENIDO)*/}
       <div className="hidden lg:flex w-1/1 relative overflow-hidden items-center justify-center p-10">
