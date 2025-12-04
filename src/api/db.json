@@ -25,6 +25,31 @@
       "password": "Soldado1"
     }
   ],
-  "accounts": [],
+  "accounts": [
+    {
+      "id": "9adc",
+      "name": "Billetera",
+      "type": "Efectivo",
+      "balance": 24000,
+      "icon": "DollarSign",
+      "color": "bg-rose-500"
+    },
+    {
+      "id": "1b0b",
+      "name": "Nequi",
+      "type": "Ahorros",
+      "balance": 1000000,
+      "icon": "Landmark",
+      "color": "bg-purple-500"
+    },
+    {
+      "id": "b728",
+      "name": "Bancolombia",
+      "type": "Banco",
+      "balance": 500000,
+      "icon": "Landmark",
+      "color": "bg-yellow-500"
+    }
+  ],
   "transactions": []
 }

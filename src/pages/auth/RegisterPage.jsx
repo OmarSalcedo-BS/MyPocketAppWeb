@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { UserPlus, Loader } from 'lucide-react';
-import { authService } from '../../services/authService';
+import { api } from '../../api/servicios';
 import Swal from 'sweetalert2';
-
 
 export const RegisterPage = () => {
     const navigate = useNavigate();
@@ -43,13 +42,12 @@ export const RegisterPage = () => {
 
         const { confirmPassword, ...registerData } = formData;
 
-        const result = await authService.register(registerData);
+        const result = await api.register(registerData);
 
         if (result.success) {
             localStorage.setItem('token', 'true');
             localStorage.setItem('user', JSON.stringify(result.user));
 
-            // Toast de éxito
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -70,7 +68,6 @@ export const RegisterPage = () => {
 
             navigate("/login");
         } else {
-            // Modal de error
             Swal.fire({
                 icon: 'error',
                 title: 'Error al Registrarse',
@@ -86,7 +83,6 @@ export const RegisterPage = () => {
     return (
         <div className="min-h-screen flex bg-slate-50">
 
-            {/* IZQUIERDA: Background (Mismo estilo para consistencia) */}
             <div className="hidden lg:flex w-1/1 relative overflow-hidden items-center justify-center p-12">
                 <img
                     src="public\Background.png"
@@ -106,8 +102,6 @@ export const RegisterPage = () => {
                     </p>
                 </div>
             </div>
-
-            {/* DERECHA: Formulario de Registro */}
 
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-100">
                 <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl border border-slate-100">
@@ -170,7 +164,7 @@ export const RegisterPage = () => {
                             </div>
                         </div>
 
-                        <Button className="w-full py-3.5 mt-2" variant="primary" disabled={loading}>
+                        <Button type="submit" className="w-full py-3.5 mt-2" variant="primary" disabled={loading}>
                             {loading ? <Loader /> : 'Registrarme'}
                         </Button>
                     </form>
