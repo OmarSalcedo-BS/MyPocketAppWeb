@@ -11,6 +11,7 @@ const mockTransactions = [
   { id: 3, title: 'Transferencia Nequi', category: 'Transferencia', amount: -50000, type: 'transfer', date: 'Ayer' },
 ];
 
+
 export const DashboardHome = () => {
   const [accounts, setAccounts] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
