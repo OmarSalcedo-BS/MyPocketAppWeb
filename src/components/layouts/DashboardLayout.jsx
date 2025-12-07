@@ -121,7 +121,12 @@ const DashboardLayout = () => {
         </header>
 
         <div className="p-6 max-w-7xl mx-auto w-full">
-          <Outlet />
+          <div
+            key={location.pathname}
+            className="page-transition"
+          >
+            <Outlet />
+          </div>
         </div>
 
       </main>

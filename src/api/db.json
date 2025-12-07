@@ -15,93 +15,158 @@
   ],
   "accounts": [
     {
-      "id": "9adc",
-      "name": "Billetera",
+      "id": "48e0",
+      "name": "Efectivo",
       "type": "Efectivo",
-      "balance": 646000,
+      "balance": 350000,
       "icon": "DollarSign",
-      "color": "bg-rose-500"
+      "color": "bg-green-500"
     },
     {
-      "id": "1b0b",
+      "id": "2bc8",
       "name": "Nequi",
-      "type": "Ahorros",
-      "balance": 1450000,
+      "type": "Banco",
+      "balance": 2500000,
       "icon": "Landmark",
       "color": "bg-purple-500"
-    },
-    {
-      "id": "b728",
-      "name": "Bancolombia",
-      "type": "Banco",
-      "balance": 0,
-      "icon": "Landmark",
-      "color": "bg-yellow-500"
     }
   ],
   "transactions": [
     {
-      "id": "bab0",
-      "title": "Pago quincena",
+      "id": "T01",
+      "title": "Pago Proyecto Cliente Alpha",
+      "category": "Pagos Varios",
+      "amount": 2800000,
+      "type": "income",
+      "date": "2025-12-06T15:00:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T02",
+      "title": "Salario Quincenal Programación",
       "category": "Salario",
       "amount": 1250000,
       "type": "income",
-      "date": "2025-12-07T19:08:13.524Z",
-      "accountId": "1b0b"
+      "date": "2025-12-01T09:00:00.000Z",
+      "accountId": "2bc8"
     },
     {
-      "id": "aacf",
-      "title": "Pago de prestamo",
+      "id": "T03",
+      "title": "Venta de Equipo Usado",
       "category": "Pagos Varios",
-      "amount": 200000,
-      "type": "income",
-      "date": "2025-12-07T19:08:13.524Z",
-      "accountId": "1b0b"
-    },
-    {
-      "id": "accf",
-      "title": "Pago trabajo independiente",
-      "category": "Salario",
-      "amount": 1500000,
-      "type": "income",
-      "date": "2025-12-07T19:11:26.387Z",
-      "accountId": "9adc"
-    },
-    {
-      "id": "64b7",
-      "title": "VIaje Didi",
-      "category": "Transporte",
-      "amount": 25000,
-      "type": "expense",
-      "date": "2025-12-07T19:13:13.295Z",
-      "accountId": "9adc"
-    },
-    {
-      "id": "5cb8",
-      "title": "Papas y Pollo",
-      "category": "Alimentación",
-      "amount": 79000,
-      "type": "expense",
-      "date": "2025-12-07T19:13:38.624Z",
-      "accountId": "9adc"
-    },
-    {
-      "id": "3a34",
-      "title": "Pago mantenimiento",
-      "category": "Casa",
       "amount": 500000,
-      "type": "expense",
-      "date": "2025-12-07T19:29:32.995Z",
-      "accountId": "9adc"
+      "type": "income",
+      "date": "2025-11-29T10:30:00.000Z",
+      "accountId": "2bc8"
     },
     {
-      "id": "a4bb",
-      "title": "Componente de PC",
+      "id": "T04",
+      "title": "Propina por Servicio Rápido",
+      "category": "Pagos Varios",
+      "amount": 20000,
+      "type": "income",
+      "date": "2025-11-28T11:00:00.000Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "T05",
+      "title": "Salario Quincenal Programación",
+      "category": "Salario",
+      "amount": 1250000,
+      "type": "income",
+      "date": "2025-11-15T09:00:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T06",
+      "title": "Reembolso Almuerzo de Negocio",
+      "category": "Pagos Varios",
+      "amount": 80000,
+      "type": "income",
+      "date": "2025-11-10T13:00:00.000Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "T07",
+      "title": "Pago Mantenimiento Servidor",
+      "category": "Pagos Varios",
+      "amount": 350000,
+      "type": "income",
+      "date": "2025-11-05T14:30:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T08",
+      "title": "Transferencia de Socio",
+      "category": "Préstamos",
+      "amount": 1000000,
+      "type": "income",
+      "date": "2025-10-30T10:00:00.000Z",
+      "accountId": "2bc8"
+    },
+
+    {
+      "id": "T09",
+      "title": "Compra de Silla Ergonómica",
       "category": "Capricho",
-      "amount": 250000,
+      "amount": 800000,
       "type": "expense",
-      "date": "2025-12-07T19:42:11.115Z",
-      "accountId": "9adc"
+      "date": "2025-12-07T08:00:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T10",
+      "title": "Almuerzo y Café de Día",
+      "category": "Alimentación",
+      "amount": 40000,
+      "type": "expense",
+      "date": "2025-12-07T07:30:00.000Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "T11",
+      "title": "Pago de Alquiler",
+      "category": "Casa",
+      "amount": 1500000,
+      "type": "expense",
+      "date": "2025-12-04T12:00:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T12",
+      "title": "Pasajes de Bus Intermunicipal",
+      "category": "Transporte",
+      "amount": 90000,
+      "type": "expense",
+      "date": "2025-12-03T18:00:00.000Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "T13",
+      "title": "Suscripción JetBrains IDE",
+      "category": "Otros",
+      "amount": 110000,
+      "type": "expense",
+      "date": "2025-11-25T15:00:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T14",
+      "title": "Compra en Supermercado",
+      "category": "Alimentación",
+      "amount": 350000,
+      "type": "expense",
+      "date": "2025-11-20T13:30:00.000Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "T15",
+      "title": "Cena de Celebración de Proyecto",
+      "category": "Capricho",
+      "amount": 60000,
+      "type": "expense",
+      "date": "2025-11-18T16:00:00.000Z",
+      "accountId": "48e0"
     }
   ]
 }
