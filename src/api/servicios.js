@@ -101,6 +101,24 @@ export const api = {
         }
     },
 
+    updateUser: async (id, user) => {
+        try {
+            return await httpPut(`${endpoints.users}/${id}`, user);
+        } catch (error) {
+            console.error('Error al actualizar usuario:', error);
+            throw error;
+        }
+    },
+
+    deleteUser: async (id) => {
+        try {
+            return await httpDelete(`${endpoints.users}/${id}`);
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            throw error;
+        }
+    },
+
     getAllAccounts: async () => {
         try {
             return await httpGet(endpoints.accounts);

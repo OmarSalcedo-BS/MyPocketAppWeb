@@ -1,16 +1,16 @@
 {
   "users": [
     {
-      "id": "1",
-      "name": "Usuario Demo",
-      "email": "demo@test.com",
-      "password": "demo123"
+      "id": "b85c",
+      "name": "Omar Dario Salcedo ",
+      "email": "salcedo@gmail.com",
+      "password": "123456"
     },
     {
-      "id": "b85c",
-      "name": "Omar Salcedo",
-      "email": "omar2@test.com",
-      "password": "Soldado1"
+      "password": "pedrito123",
+      "id": "deb5",
+      "name": "Pedro nel garcia",
+      "email": "pedrito@gmail.com"
     }
   ],
   "accounts": [
@@ -18,7 +18,7 @@
       "id": "48e0",
       "name": "Efectivo",
       "type": "Efectivo",
-      "balance": 350000,
+      "balance": 1837000,
       "icon": "DollarSign",
       "color": "bg-green-500"
     },
@@ -26,9 +26,20 @@
       "id": "2bc8",
       "name": "Nequi",
       "type": "Banco",
-      "balance": 2500000,
+      "balance": 10355700,
       "icon": "Landmark",
       "color": "bg-purple-500"
+    },
+    {
+      "id": "TEST_CREDIT",
+      "name": "Tarjeta NU",
+      "type": "Crédito",
+      "balance": 0,
+      "icon": "CreditCard",
+      "color": "bg-purple-500",
+      "interestRate": 3,
+      "maxInstallments": 24,
+      "creditLimit": 3000000
     }
   ],
   "transactions": [
@@ -58,15 +69,6 @@
       "type": "income",
       "date": "2025-11-29T10:30:00.000Z",
       "accountId": "2bc8"
-    },
-    {
-      "id": "T04",
-      "title": "Propina por Servicio Rápido",
-      "category": "Pagos Varios",
-      "amount": 20000,
-      "type": "income",
-      "date": "2025-11-28T11:00:00.000Z",
-      "accountId": "48e0"
     },
     {
       "id": "T05",
@@ -104,21 +106,11 @@
       "date": "2025-10-30T10:00:00.000Z",
       "accountId": "2bc8"
     },
-
-    {
-      "id": "T09",
-      "title": "Compra de Silla Ergonómica",
-      "category": "Capricho",
-      "amount": 800000,
-      "type": "expense",
-      "date": "2025-12-07T08:00:00.000Z",
-      "accountId": "2bc8"
-    },
     {
       "id": "T10",
       "title": "Almuerzo y Café de Día",
       "category": "Alimentación",
-      "amount": 40000,
+      "amount": 8000,
       "type": "expense",
       "date": "2025-12-07T07:30:00.000Z",
       "accountId": "48e0"
@@ -167,6 +159,132 @@
       "type": "expense",
       "date": "2025-11-18T16:00:00.000Z",
       "accountId": "48e0"
+    },
+    {
+      "id": "9b1d",
+      "title": "Compra moto primera cuota",
+      "category": "Transporte",
+      "amount": 2000000,
+      "type": "expense",
+      "date": "2025-12-08T05:05:01.325Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "6ad8",
+      "title": "Pago por proyecto de código abierto",
+      "category": "Salario",
+      "amount": 2850700,
+      "type": "income",
+      "date": "2025-12-08T05:06:31.408Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "9b8f",
+      "title": "Compra de componentes para nueva Pc",
+      "category": "Capricho",
+      "amount": 300000,
+      "type": "expense",
+      "date": "2025-12-08T05:31:41.751Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "8e25",
+      "title": "Pago de proyecto CRUD",
+      "category": "Pagos Varios",
+      "amount": 4000000,
+      "type": "income",
+      "date": "2025-12-08T05:41:19.273Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "8d40",
+      "title": "Compra de pc mejorada",
+      "category": "Capricho",
+      "amount": 2500000,
+      "type": "expense",
+      "date": "2025-12-08T08:06:53.681Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 10,
+      "interestAmount": 750000,
+      "paidOff": true
+    },
+    {
+      "id": "957a",
+      "title": "Pago 5 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 1250000,
+      "type": "income",
+      "date": "2025-12-08T08:13:14.785Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "1da2",
+      "title": "Pago 3 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 975000,
+      "type": "income",
+      "date": "2025-12-08T08:20:10.570Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "d71b",
+      "title": "Pago 1 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 275000,
+      "type": "income",
+      "date": "2025-12-08T08:20:37.082Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "395a",
+      "title": "Compra motoneta",
+      "category": "Otros",
+      "amount": 1520000,
+      "type": "expense",
+      "date": "2025-12-08T08:22:47.167Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 8,
+      "interestAmount": 364800,
+      "paidOff": true
+    },
+    {
+      "id": "2af8",
+      "title": "Pago 2 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 1121200,
+      "type": "income",
+      "date": "2025-12-08T08:25:38.510Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "f9dc",
+      "title": "Programa de ventas para cliente",
+      "category": "Salario",
+      "amount": 8000000,
+      "type": "income",
+      "date": "2025-12-08T08:35:21.597Z",
+      "accountId": "2bc8",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "5ac5",
+      "title": "Pago 1 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 398800,
+      "type": "income",
+      "date": "2025-12-08T08:36:11.214Z",
+      "accountId": "TEST_CREDIT",
+      "installments": 1,
+      "interestAmount": 0
     }
   ]
 }

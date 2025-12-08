@@ -24,7 +24,11 @@ export const AccountsPage = () => {
         type: 'Banco',
         balance: 0,
         icon: 'Landmark',
-        color: 'bg-blue-500'
+        color: 'bg-blue-500',
+        // Campos específicos para crédito
+        interestRate: 0,
+        maxInstallments: 12,
+        creditLimit: 0
     });
 
 
@@ -55,18 +59,38 @@ export const AccountsPage = () => {
         try {
             const accountData = {
                 ...newAccount,
-                balance: parseFloat(newAccount.balance)
+                // Para cuentas de crédito, el balance siempre empieza en 0
+                balance: newAccount.type === 'Crédito' ? 0 : parseFloat(newAccount.balance)
             };
 
             await api.createAccount(accountData);
 
-            Swal.fire({
-                icon: 'success',
-                title: '¡Cuenta creada!',
-                text: 'La cuenta se ha creado exitosamente',
-                confirmButtonColor: '#4F46E5',
-                timer: 2000
-            });
+            const successMessage = newAccount.type === 'Crédito'
+                ? {
+                    icon: 'success',
+                    title: '¡Tarjeta de crédito creada!',
+                    html: `
+                        <p>Tu tarjeta se ha creado exitosamente</p>
+                        <div style="margin-top: 15px; padding: 10px; background: #f3f4f6; border-radius: 8px; text-align: left;">
+                            <p style="margin: 5px 0;"><strong>💳 Cupo total:</strong> $${accountData.creditLimit.toLocaleString()}</p>
+                            <p style="margin: 5px 0;"><strong>✅ Cupo disponible:</strong> $${accountData.creditLimit.toLocaleString()}</p>
+                            <p style="margin: 5px 0;"><strong>📊 Deuda actual:</strong> $0</p>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #6b7280;">
+                            <em>Nota: El balance empieza en $0 (sin deuda). Al hacer compras, el balance se volverá negativo.</em>
+                        </p>
+                    `,
+                    confirmButtonColor: '#4F46E5'
+                }
+                : {
+                    icon: 'success',
+                    title: '¡Cuenta creada!',
+                    text: 'La cuenta se ha creado exitosamente',
+                    confirmButtonColor: '#4F46E5',
+                    timer: 2000
+                };
+
+            Swal.fire(successMessage);
 
 
             loadAccounts();
@@ -78,7 +102,10 @@ export const AccountsPage = () => {
                 type: 'Banco',
                 balance: 0,
                 icon: 'Landmark',
-                color: 'bg-blue-500'
+                color: 'bg-blue-500',
+                interestRate: 0,
+                maxInstallments: 12,
+                creditLimit: 0
             });
         } catch (error) {
             Swal.fire({
@@ -92,9 +119,16 @@ export const AccountsPage = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+
+        // Convertir a número los campos numéricos
+        let processedValue = value;
+        if (['balance', 'interestRate', 'maxInstallments', 'creditLimit'].includes(name)) {
+            processedValue = value === '' ? 0 : parseFloat(value);
+        }
+
         setNewAccount(prev => ({
             ...prev,
-            [name]: value
+            [name]: processedValue
         }));
     };
 
@@ -173,8 +207,8 @@ export const AccountsPage = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Mis Cuentas</h1>
-                    <p className="text-slate-500 mt-1">Administra tus cuentas y balances</p>
+                    <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Mis Cuentas</h1>
+                    <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>Administra tus cuentas y balances</p>
                 </div>
                 <Button onClick={() => setShowModal(true)} className="flex items-center gap-2">
                     <Plus size={20} />
@@ -196,10 +230,10 @@ export const AccountsPage = () => {
             </div>
 
             {accounts.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+                <div className="text-center py-12 rounded-xl border" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
                     <Wallet size={48} className="mx-auto text-slate-300 mb-4" />
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No tienes cuentas aún</h3>
-                    <p className="text-slate-500 mb-4">Crea tu primera cuenta para comenzar a administrar tus finanzas</p>
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>No tienes cuentas aún</h3>
+                    <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>Crea tu primera cuenta para comenzar a administrar tus finanzas</p>
                     <Button onClick={() => setShowModal(true)}>
                         <Plus size={20} className="mr-2" />
                         Crear Primera Cuenta
@@ -212,7 +246,8 @@ export const AccountsPage = () => {
                         return (
                             <div
                                 key={account.id}
-                                className="bg-white rounded-xl p-6 border border-slate-200 hover:shadow-lg transition-all"
+                                className="rounded-xl p-6 border hover:shadow-lg transition-all"
+                                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className={`${account.color} p-3 rounded-lg text-white`}>
@@ -237,7 +272,7 @@ export const AccountsPage = () => {
                                     </div>
                                 </div>
 
-                                <h3 className="font-semibold text-slate-900 mb-1">{account.name}</h3>
+                                <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{account.name}</h3>
                                 <p className={`text-2xl font-bold ${account.balance >= 0 ? 'text-green-600' : 'text-rose-600'}`}>
                                     {formatearMoneda(Math.abs(account.balance))}
                                 </p>
@@ -252,9 +287,9 @@ export const AccountsPage = () => {
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                    <div className="rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-slate-900">Nueva Cuenta</h2>
+                            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Nueva Cuenta</h2>
                             <button
                                 onClick={() => setShowModal(false)}
                                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -265,7 +300,7 @@ export const AccountsPage = () => {
 
                         <form onSubmit={handleCreateAccount} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Nombre de la Cuenta
                                 </label>
                                 <input
@@ -273,21 +308,23 @@ export const AccountsPage = () => {
                                     name="name"
                                     value={newAccount.name}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                     placeholder="Ej: Cuenta de Ahorros"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Tipo de Cuenta
                                 </label>
                                 <select
                                     name="type"
                                     value={newAccount.type}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="Banco">Banco</option>
                                     <option value="Crédito">Tarjeta de Crédito</option>
@@ -296,31 +333,36 @@ export const AccountsPage = () => {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                    Balance Inicial
-                                </label>
-                                <input
-                                    type="number"
-                                    name="balance"
-                                    value={newAccount.balance}
-                                    onChange={handleInputChange}
-                                    step="0.01"
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
-                                    placeholder="0.00"
-                                    required
-                                />
-                            </div>
+                            {/* Balance Inicial - solo para cuentas que NO son de crédito */}
+                            {newAccount.type !== 'Crédito' && (
+                                <div>
+                                    <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                        Balance Inicial
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="balance"
+                                        value={newAccount.balance}
+                                        onChange={handleInputChange}
+                                        step="0.01"
+                                        className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                        style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                        placeholder="0.00"
+                                        required
+                                    />
+                                </div>
+                            )}
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Icono
                                 </label>
                                 <select
                                     name="icon"
                                     value={newAccount.icon}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="Landmark">Banco</option>
                                     <option value="CreditCard">Tarjeta</option>
@@ -330,14 +372,15 @@ export const AccountsPage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Color
                                 </label>
                                 <select
                                     name="color"
                                     value={newAccount.color}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="bg-blue-500">Azul</option>
                                     <option value="bg-purple-500">Morado</option>
@@ -348,11 +391,67 @@ export const AccountsPage = () => {
                                 </select>
                             </div>
 
+                            {/* Campos específicos para Crédito */}
+                            {newAccount.type === 'Crédito' && (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Tasa de Interés Mensual (%)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="interestRate"
+                                            value={newAccount.interestRate}
+                                            onChange={handleInputChange}
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="2.5"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Máximo de Cuotas
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="maxInstallments"
+                                            value={newAccount.maxInstallments}
+                                            onChange={handleInputChange}
+                                            min="1"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="12"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Cupo Máximo
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="creditLimit"
+                                            value={newAccount.creditLimit}
+                                            onChange={handleInputChange}
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="5000000"
+                                        />
+                                    </div>
+                                </>
+                            )}
+
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-all"
+                                    className="flex-1 px-4 py-3 rounded-xl border font-medium transition-all"
+                                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                                 >
                                     Cancelar
                                 </button>
@@ -367,9 +466,9 @@ export const AccountsPage = () => {
 
             {showEditModal && editingAccount && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                    <div className="rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--bg-secondary)' }}>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-slate-900">Editar Cuenta</h2>
+                            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Editar Cuenta</h2>
                             <button
                                 onClick={() => { setShowEditModal(false); setEditingAccount(null); }}
                                 className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -380,7 +479,7 @@ export const AccountsPage = () => {
 
                         <form onSubmit={handleUpdateAccount} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Nombre de la Cuenta
                                 </label>
                                 <input
@@ -388,20 +487,22 @@ export const AccountsPage = () => {
                                     name="name"
                                     value={editingAccount.name}
                                     onChange={(e) => setEditingAccount({ ...editingAccount, name: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Tipo de Cuenta
                                 </label>
                                 <select
                                     name="type"
                                     value={editingAccount.type}
                                     onChange={(e) => setEditingAccount({ ...editingAccount, type: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="Banco">Banco</option>
                                     <option value="Crédito">Tarjeta de Crédito</option>
@@ -411,7 +512,7 @@ export const AccountsPage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Balance
                                 </label>
                                 <input
@@ -420,20 +521,22 @@ export const AccountsPage = () => {
                                     value={editingAccount.balance}
                                     onChange={(e) => setEditingAccount({ ...editingAccount, balance: e.target.value })}
                                     step="0.01"
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Icono
                                 </label>
                                 <select
                                     name="icon"
                                     value={editingAccount.icon}
                                     onChange={(e) => setEditingAccount({ ...editingAccount, icon: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="Landmark">Banco</option>
                                     <option value="CreditCard">Tarjeta</option>
@@ -443,14 +546,15 @@ export const AccountsPage = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                                     Color
                                 </label>
                                 <select
                                     name="color"
                                     value={editingAccount.color}
                                     onChange={(e) => setEditingAccount({ ...editingAccount, color: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                    style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="bg-blue-500">Azul</option>
                                     <option value="bg-purple-500">Morado</option>
@@ -461,11 +565,67 @@ export const AccountsPage = () => {
                                 </select>
                             </div>
 
+                            {/* Campos específicos para Crédito */}
+                            {editingAccount.type === 'Crédito' && (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Tasa de Interés Mensual (%)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="interestRate"
+                                            value={editingAccount.interestRate || 0}
+                                            onChange={(e) => setEditingAccount({ ...editingAccount, interestRate: parseFloat(e.target.value) })}
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="2.5"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Máximo de Cuotas
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="maxInstallments"
+                                            value={editingAccount.maxInstallments || 12}
+                                            onChange={(e) => setEditingAccount({ ...editingAccount, maxInstallments: parseInt(e.target.value) })}
+                                            min="1"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="12"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                                            Cupo Máximo
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="creditLimit"
+                                            value={editingAccount.creditLimit || 0}
+                                            onChange={(e) => setEditingAccount({ ...editingAccount, creditLimit: parseFloat(e.target.value) })}
+                                            step="0.01"
+                                            min="0"
+                                            className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                                            style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
+                                            placeholder="5000000"
+                                        />
+                                    </div>
+                                </>
+                            )}
+
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
                                     onClick={() => { setShowEditModal(false); setEditingAccount(null); }}
-                                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-all"
+                                    className="flex-1 px-4 py-3 rounded-xl border font-medium transition-all"
+                                    style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                                 >
                                     Cancelar
                                 </button>
