@@ -31,7 +31,31 @@
 }
 
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Cursor pointer para elementos interactivos */
+button,
+a,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+label[for],
+[role="button"],
+[onclick],
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Cursor pointer para elementos deshabilitados */
+button:disabled,
+select:disabled,
+input:disabled {
+  cursor: not-allowed;
 }
 
 @keyframes fadeInUp {

@@ -132,7 +132,9 @@ export const AccountsPage = () => {
         }));
     };
 
-    const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
+    const totalBalance = accounts
+        .filter(account => account.type !== 'Crédito')
+        .reduce((sum, account) => sum + account.balance, 0);
 
     const handleDeleteAccount = async (id) => {
         try {
@@ -148,12 +150,35 @@ export const AccountsPage = () => {
             });
 
             if (result.isConfirmed) {
+                // Primero, obtener todas las transacciones
+                const allTransactions = await api.getAllTransactions();
+
+                // Filtrar las transacciones de esta cuenta
+                const transactionsToDelete = allTransactions.filter(t => t.accountId === id);
+
+                // Eliminar todas las transacciones asociadas
+                for (const transaction of transactionsToDelete) {
+                    await api.deleteTransaction(transaction.id);
+                }
+
+                // Luego eliminar la cuenta
                 await api.deleteAccount(id);
                 await loadAccounts();
-                Swal.fire('Eliminada!', 'La cuenta ha sido eliminada.', 'success');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Eliminada!',
+                    text: `La cuenta y ${transactionsToDelete.length} transacción(es) asociada(s) han sido eliminadas.`,
+                    confirmButtonColor: '#4F46E5'
+                });
             }
         } catch (error) {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar la cuenta' });
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar la cuenta',
+                confirmButtonColor: '#4F46E5'
+            });
         }
     };
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, X, AlertTriangle, CheckCircle, Info, Trash2 } from 'lucide-react';
+import { Bell, X, AlertTriangle, CheckCircle, Info, Trash2, CheckCheck } from 'lucide-react';
 
-export const Notificacion = ({ alerts = [], markAsRead, deleteNotification }) => {
+export const Notificacion = ({ alerts = [], markAsRead, deleteNotification, markAllAsRead }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const unreadCount = alerts.filter(a => !a.isRead).length;
@@ -33,9 +33,21 @@ export const Notificacion = ({ alerts = [], markAsRead, deleteNotification }) =>
                             <h3 className="text-lg font-semibold text-gray-800">
                                 Notificaciones {unreadCount > 0 && `(${unreadCount})`}
                             </h3>
-                            <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
-                                <X className="h-5 w-5" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {unreadCount > 0 && (
+                                    <button
+                                        onClick={markAllAsRead}
+                                        className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 px-2 py-1 rounded hover:bg-indigo-50 transition-colors"
+                                        title="Marcar todas como leídas"
+                                    >
+                                        <CheckCheck className="h-4 w-4" />
+                                        Marcar todas
+                                    </button>
+                                )}
+                                <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="max-h-96 overflow-y-auto">

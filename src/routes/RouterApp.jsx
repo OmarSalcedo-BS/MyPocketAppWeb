@@ -10,6 +10,7 @@ import { AnalyticsPage } from "../pages/dashboard/AnaliticsPage";
 import { CreditPage } from "../pages/dashboard/CreditPage";
 import { About } from "../pages/informacion/About";
 import { ConfigPage } from "../pages/config/ConfigPage";
+import { SubscriptionsPage } from "../pages/dashboard/SubscriptionsPage";
 
 export const routerApp = createBrowserRouter([
     {
@@ -55,6 +56,10 @@ export const routerApp = createBrowserRouter([
             {
                 path: "configuraciones",
                 element: <ConfigPage />,
+            },
+            {
+                path: "subscriptions",
+                element: <SubscriptionsPage />,
             }
         ]
     },

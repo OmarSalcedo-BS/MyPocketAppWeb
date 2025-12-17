@@ -21,7 +21,11 @@ export const DashboardHome = () => {
   const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [creditPayments, setCreditPayments] = useState(0);
+  const [totalCreditDebt, setTotalCreditDebt] = useState(0);
+  const [totalAvailableCredit, setTotalAvailableCredit] = useState(0);
+  const [periodFilter, setPeriodFilter] = useState('month'); // 'day', 'month', 'year'
   const [showModal, setShowModal] = useState(false);
+  const [customCategories, setCustomCategories] = useState([]);
   const [newTransaction, setNewTransaction] = useState({
     title: '',
     category: '',
@@ -36,7 +40,27 @@ export const DashboardHome = () => {
   useEffect(() => {
     loadAccounts();
     loadTransactions();
+    loadCustomCategories();
   }, []);
+
+  // Recargar transacciones cuando cambie el período
+  useEffect(() => {
+    if (accounts.length > 0) {
+      loadTransactions();
+    }
+  }, [periodFilter]);
+
+  const loadCustomCategories = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCustomCategories(data);
+      }
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+    }
+  };
 
   const loadAccounts = async () => {
     try {
@@ -44,8 +68,24 @@ export const DashboardHome = () => {
       const data = await api.getAllAccounts();
       setAccounts(data);
 
-      const total = data.reduce((sum, account) => sum + account.balance, 0);
+      // Calcular balance total excluyendo cuentas de crédito
+      const total = data
+        .filter(account => account.type !== 'Crédito')
+        .reduce((sum, account) => sum + account.balance, 0);
       setTotalBalance(total);
+
+      // Calcular deuda total de crédito (valores absolutos de balances negativos)
+      const creditAccounts = data.filter(account => account.type === 'Crédito');
+      const creditDebt = creditAccounts.reduce((sum, account) => sum + Math.abs(account.balance), 0);
+      setTotalCreditDebt(creditDebt);
+
+      // Calcular cupo disponible total
+      const availableCredit = creditAccounts.reduce((sum, account) => {
+        const available = calculateAvailableCredit(account.creditLimit || 0, account.balance);
+        return sum + available;
+      }, 0);
+      setTotalAvailableCredit(availableCredit);
+
     } catch (error) {
       console.error('Error al cargar cuentas:', error);
     } finally {
@@ -64,29 +104,44 @@ export const DashboardHome = () => {
 
       setTransactions(sortedTransactions);
 
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+      const now = new Date();
+      const currentDay = now.getDate();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      // Función para verificar si una transacción está en el período seleccionado
+      const isInPeriod = (transactionDate) => {
+        const tDate = new Date(transactionDate);
+
+        if (periodFilter === 'day') {
+          return tDate.getDate() === currentDay &&
+            tDate.getMonth() === currentMonth &&
+            tDate.getFullYear() === currentYear;
+        } else if (periodFilter === 'month') {
+          return tDate.getMonth() === currentMonth &&
+            tDate.getFullYear() === currentYear;
+        } else if (periodFilter === 'year') {
+          return tDate.getFullYear() === currentYear;
+        }
+        return false;
+      };
 
       // Filtrar transacciones excluyendo pagos de crédito
       const filteredTransactions = filterOutCreditPayments(sortedTransactions, accounts);
 
-      // Calcular pagos de crédito del mes
+      // Calcular pagos de crédito del período
       const creditPaymentsData = getCreditPayments(sortedTransactions, accounts);
-      const monthlyCredit = creditPaymentsData
-        .filter(t => {
-          const tDate = new Date(t.date);
-          return tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
-        })
+      const periodCredit = creditPaymentsData
+        .filter(t => isInPeriod(t.date))
         .reduce((sum, t) => sum + t.amount, 0);
 
-      setCreditPayments(monthlyCredit);
+      setCreditPayments(periodCredit);
 
       let income = 0;
       let expenses = 0;
 
       filteredTransactions.forEach(transaction => {
-        const transactionDate = new Date(transaction.date);
-        if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+        if (isInPeriod(transaction.date)) {
           if (transaction.type === 'income') {
             income += parseFloat(transaction.amount);
           } else if (transaction.type === 'expense') {
@@ -227,8 +282,9 @@ export const DashboardHome = () => {
         text: 'La transacción se ha creado y el balance se actualizó correctamente',
       });
 
-      loadTransactions();
-      loadAccounts();
+      // Primero cargar cuentas, luego transacciones para asegurar cálculo correcto
+      await loadAccounts();
+      await loadTransactions();
       setShowModal(false);
       setNewTransaction({
         title: '',
@@ -248,8 +304,6 @@ export const DashboardHome = () => {
         title: 'Error',
         text: 'No se pudo crear la transacción',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -261,7 +315,7 @@ export const DashboardHome = () => {
     }));
   };
 
-  const expenseTotals = useMemo(() => getCategoryTotals(transactions, 'expense', accounts), [transactions, accounts]);
+  const expenseTotals = useMemo(() => getCategoryTotals(transactions, 'expense', accounts, periodFilter), [transactions, accounts, periodFilter]);
   const chartDataCategory = {
     labels: Object.keys(expenseTotals),
     datasets: [{
@@ -305,6 +359,48 @@ export const DashboardHome = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Selector de Período */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          Resumen Financiero
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Período:</span>
+          <div className="flex gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+            <button
+              onClick={() => setPeriodFilter('day')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${periodFilter === 'day'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'hover:bg-indigo-50'
+                }`}
+              style={periodFilter !== 'day' ? { color: 'var(--text-secondary)' } : {}}
+            >
+              Día
+            </button>
+            <button
+              onClick={() => setPeriodFilter('month')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${periodFilter === 'month'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'hover:bg-indigo-50'
+                }`}
+              style={periodFilter !== 'month' ? { color: 'var(--text-secondary)' } : {}}
+            >
+              Mes
+            </button>
+            <button
+              onClick={() => setPeriodFilter('year')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${periodFilter === 'year'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'hover:bg-indigo-50'
+                }`}
+              style={periodFilter !== 'year' ? { color: 'var(--text-secondary)' } : {}}
+            >
+              Año
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="relative overflow-hidden border-indigo-100">
           <div className="absolute right-0 top-0 p-4 opacity-5 text-indigo-600">
@@ -318,20 +414,52 @@ export const DashboardHome = () => {
               formatearMoneda(totalBalance)
             )}
           </h3>
-          <div className="flex items-center gap-2 mt-4">
-            <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1">
-              <TrendingUp size={12} /> +12%
-            </span>
-            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>vs mes anterior</span>
-          </div>
+          <p className="text-xs mt-2" style={{ color: 'var(--text-tertiary)' }}>Excluye cuentas de crédito</p>
         </Card>
+
+        {/* Solo mostrar tarjetas de crédito si existen cuentas de crédito */}
+        {accounts.some(acc => acc.type === 'Crédito') && (
+          <>
+            <Card className="relative overflow-hidden border-purple-100">
+              <div className="absolute right-0 top-0 p-4 opacity-5 text-purple-600">
+                <CreditCard size={100} />
+              </div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Deuda de Crédito</p>
+              <h3 className="text-3xl font-bold mt-1 text-rose-600">
+                {loading ? (
+                  <span className="animate-pulse">...</span>
+                ) : (
+                  formatearMoneda(totalCreditDebt)
+                )}
+              </h3>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-tertiary)' }}>Total adeudado</p>
+            </Card>
+
+            <Card className="relative overflow-hidden border-green-100">
+              <div className="absolute right-0 top-0 p-4 opacity-5 text-green-600">
+                <CreditCard size={100} />
+              </div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Cupo Disponible</p>
+              <h3 className="text-3xl font-bold mt-1 text-green-600">
+                {loading ? (
+                  <span className="animate-pulse">...</span>
+                ) : (
+                  formatearMoneda(totalAvailableCredit)
+                )}
+              </h3>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-tertiary)' }}>Crédito disponible</p>
+            </Card>
+          </>
+        )}
 
         <Card>
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <TrendingUp size={20} />
             </div>
-            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Este mes</span>
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              {periodFilter === 'day' ? 'Hoy' : periodFilter === 'month' ? 'Este mes' : 'Este año'}
+            </span>
           </div>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Ingresos</p>
           <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -348,7 +476,9 @@ export const DashboardHome = () => {
             <div className="p-2 bg-rose-100 rounded-lg text-rose-600">
               <TrendingDown size={20} />
             </div>
-            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Este mes</span>
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+              {periodFilter === 'day' ? 'Hoy' : periodFilter === 'month' ? 'Este mes' : 'Este año'}
+            </span>
           </div>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Gastos</p>
           <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -360,22 +490,27 @@ export const DashboardHome = () => {
           </h3>
         </Card>
 
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
-              <CreditCard size={20} />
+        {/* Solo mostrar Pagos de Crédito si existen cuentas de crédito */}
+        {accounts.some(acc => acc.type === 'Crédito') && (
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                <CreditCard size={20} />
+              </div>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                {periodFilter === 'day' ? 'Hoy' : periodFilter === 'month' ? 'Este mes' : 'Este año'}
+              </span>
             </div>
-            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Este mes</span>
-          </div>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Pagos de Crédito</p>
-          <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            {loading ? (
-              <span className="animate-pulse">...</span>
-            ) : (
-              formatearMoneda(creditPayments)
-            )}
-          </h3>
-        </Card>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Pagos de Crédito</p>
+            <h3 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              {loading ? (
+                <span className="animate-pulse">...</span>
+              ) : (
+                formatearMoneda(creditPayments)
+              )}
+            </h3>
+          </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -551,7 +686,8 @@ export const DashboardHome = () => {
               <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Nueva Transacción</h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors text-2xl"
+                className="transition-colors text-2xl hover:opacity-70"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 ✕
               </button>
@@ -596,15 +732,21 @@ export const DashboardHome = () => {
                   name="accountId"
                   value={newTransaction.accountId}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   required
                 >
                   <option value="">Selecciona una cuenta</option>
-                  {accounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name} ({account.type}) - {formatearMoneda(account.balance)}
-                    </option>
-                  ))}
+                  {accounts.map((account) => {
+                    const displayValue = account.type === 'Crédito'
+                      ? `Cupo disponible: ${formatearMoneda(calculateAvailableCredit(account.creditLimit || 0, account.balance))}`
+                      : formatearMoneda(account.balance);
+                    return (
+                      <option key={account.id} value={account.id}>
+                        {account.name} ({account.type}) - {displayValue}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -616,23 +758,46 @@ export const DashboardHome = () => {
                   name="category"
                   value={newTransaction.category}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   required
                 >
                   <option value="">Selecciona una categoría</option>
                   {newTransaction.type === 'expense' ? (
                     <>
+                      {/* Categorías predeterminadas de gastos */}
                       <option value="Casa">🏠 Casa</option>
                       <option value="Transporte">🚗 Transporte</option>
                       <option value="Alimentación">🍔 Alimentación</option>
                       <option value="Capricho">🎁 Capricho</option>
                       <option value="Otros">📦 Otros</option>
+
+                      {/* Categorías personalizadas de gastos */}
+                      {customCategories
+                        .filter(cat => cat.type === 'expense')
+                        .map(cat => (
+                          <option key={cat.id} value={cat.name}>
+                            {cat.icon} {cat.name}
+                          </option>
+                        ))
+                      }
                     </>
                   ) : (
                     <>
+                      {/* Categorías predeterminadas de ingresos */}
                       <option value="Salario">💼 Salario</option>
                       <option value="Pagos Varios">💳 Pagos Varios</option>
-                      <option value="Préstamos">🏦 Préstamos</option>
+                      <option value="Préstamos">💰 Préstamos</option>
+
+                      {/* Categorías personalizadas de ingresos */}
+                      {customCategories
+                        .filter(cat => cat.type === 'income')
+                        .map(cat => (
+                          <option key={cat.id} value={cat.name}>
+                            {cat.icon} {cat.name}
+                          </option>
+                        ))
+                      }
                     </>
                   )}
                 </select>
@@ -647,7 +812,8 @@ export const DashboardHome = () => {
                   name="title"
                   value={newTransaction.title}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   placeholder="Ej: Compra del supermercado"
                   required
                 />
@@ -664,7 +830,8 @@ export const DashboardHome = () => {
                   onChange={handleInputChange}
                   step="0.01"
                   min="0"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   placeholder="0.00"
                   required
                 />
@@ -699,36 +866,37 @@ export const DashboardHome = () => {
                       }}
                       min="1"
                       max={accounts.find(acc => acc.id === newTransaction.accountId)?.maxInstallments || 12}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                      style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                       placeholder="1"
                       required
                     />
                     {newTransaction.installments > 1 && newTransaction.amount > 0 && (
-                      <div className="mt-2 p-3 rounded-lg bg-slate-100">
-                        <p className="text-xs font-semibold mb-1 text-slate-700">
+                      <div className="mt-2 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>
                           Resumen de Financiación:
                         </p>
                         <div className="space-y-1 text-xs">
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Monto:</span>
-                            <span className="font-semibold text-slate-900">
+                            <span style={{ color: 'var(--text-secondary)' }}>Monto:</span>
+                            <span style={{ color: 'var(--text-primary)' }} className="font-semibold">
                               {formatearMoneda(parseFloat(newTransaction.amount) || 0)}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Interés ({accounts.find(acc => acc.id === newTransaction.accountId)?.interestRate || 0}% mensual):</span>
+                            <span style={{ color: 'var(--text-secondary)' }}>Interés ({accounts.find(acc => acc.id === newTransaction.accountId)?.interestRate || 0}% mensual):</span>
                             <span className="font-semibold text-orange-600">
                               {formatearMoneda(newTransaction.interestAmount || 0)}
                             </span>
                           </div>
-                          <div className="flex justify-between pt-1 border-t border-slate-300">
-                            <span className="font-bold text-slate-900">Total a pagar:</span>
-                            <span className="font-bold text-slate-900">
+                          <div className="flex justify-between pt-1 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                            <span style={{ color: 'var(--text-primary)' }} className="font-bold">Total a pagar:</span>
+                            <span style={{ color: 'var(--text-primary)' }} className="font-bold">
                               {formatearMoneda((parseFloat(newTransaction.amount) || 0) + (newTransaction.interestAmount || 0))}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Cuota mensual:</span>
+                            <span style={{ color: 'var(--text-secondary)' }}>Cuota mensual:</span>
                             <span className="font-semibold text-indigo-600">
                               {formatearMoneda(((parseFloat(newTransaction.amount) || 0) + (newTransaction.interestAmount || 0)) / newTransaction.installments)}
                             </span>
@@ -748,7 +916,8 @@ export const DashboardHome = () => {
                   name="date"
                   value={newTransaction.date instanceof Date ? newTransaction.date.toISOString().split('T')[0] : ''}
                   onChange={(e) => setNewTransaction({ ...newTransaction, date: new Date(e.target.value) })}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                   required
                 />
               </div>

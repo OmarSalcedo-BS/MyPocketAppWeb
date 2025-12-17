@@ -51,6 +51,9 @@ export const CreditPage = () => {
         }
     };
 
+    // Obtener transacciones de crédito (necesario para calculateMonthlyPayment)
+    const creditTransactions = getCreditTransactions(transactions, accounts);
+
     const openPaymentModal = (card) => {
         setSelectedCard(card);
         setShowPaymentModal(true);
@@ -59,11 +62,11 @@ export const CreditPage = () => {
         const monthlyPayment = calculateMonthlyPayment(card);
 
         setPaymentData({
-            amount: monthlyPayment,
+            amount: Math.round(monthlyPayment),
             installmentsToPay: 1,
             paymentDate: new Date(),
             sourceAccountId: '',
-            monthlyPayment: monthlyPayment
+            monthlyPayment: Math.round(monthlyPayment)
         });
     };
 
@@ -77,14 +80,14 @@ export const CreditPage = () => {
             return sum + (purchase.monthlyPayment || 0);
         }, 0);
 
-        return totalMonthlyPayment;
+        return Math.round(totalMonthlyPayment);
     };
 
     // Manejar cambio en número de cuotas
     const handleInstallmentsChange = (e) => {
         const installments = parseInt(e.target.value) || 1;
         const monthlyPayment = paymentData.monthlyPayment || 0;
-        const totalAmount = monthlyPayment * installments;
+        const totalAmount = Math.round(monthlyPayment * installments);
 
         setPaymentData({
             ...paymentData,
@@ -179,7 +182,7 @@ export const CreditPage = () => {
         `
             });
 
-            loadData();
+            await loadData();
             setShowPaymentModal(false);
             setSelectedCard(null);
 
@@ -192,8 +195,6 @@ export const CreditPage = () => {
             });
         }
     };
-
-    const creditTransactions = getCreditTransactions(transactions, accounts);
 
     if (loading) {
         return (

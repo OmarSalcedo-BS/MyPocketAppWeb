@@ -14,7 +14,8 @@ import {
   X,
   User,
   Info,
-  CreditCard
+  CreditCard,
+  CalendarHeart
 } from 'lucide-react';
 import { getInitial } from '../../utils/ExtractorIniciales';
 import Swal from 'sweetalert2';
@@ -54,15 +55,38 @@ const DashboardLayout = () => {
     { icon: Wallet, label: 'Cuentas', path: '/dashboard/accounts' },
     { icon: PieChart, label: 'Análisis', path: '/dashboard/analytics' },
     ...(hasCreditCards ? [{ icon: CreditCard, label: 'Créditos', path: '/dashboard/credits' }] : []),
+    { icon: CalendarHeart, label: 'Suscripciones', path: '/dashboard/subscriptions' },
     { icon: Info, label: 'Acerca de', path: '/dashboard/about' }
   ];
 
   const [frase, setFrase] = useState({});
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => {
+    // Cargar notificaciones del localStorage
+    const saved = localStorage.getItem('notifications');
+    const today = new Date().toDateString();
+
+    if (saved) {
+      const { date, data } = JSON.parse(saved);
+      // Si es del mismo día, cargar las notificaciones guardadas
+      if (date === today) {
+        return data;
+      }
+    }
+    return [];
+  });
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved === 'true';
   });
+
+  // Guardar notificaciones en localStorage
+  useEffect(() => {
+    const today = new Date().toDateString();
+    localStorage.setItem('notifications', JSON.stringify({
+      date: today,
+      data: notifications
+    }));
+  }, [notifications]);
 
   useEffect(() => {
     const randomFrase = frasesRandom();
@@ -79,6 +103,22 @@ const DashboardLayout = () => {
         notif.id === id ? { ...notif, isRead: true } : notif
       )
     );
+
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notif => notif.id !== id));
+    }, 5000);
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev =>
+      prev.map(notif => ({ ...notif, isRead: true }))
+    );
+
+    // Auto-eliminar todas después de 5 segundos
+    setTimeout(() => {
+      setNotifications([]);
+    }, 5000);
   };
 
   const deleteNotification = (id) => {
@@ -97,19 +137,61 @@ const DashboardLayout = () => {
     try {
       const accountsData = await api.getAllAccounts();
       const transactionsData = await api.getAllTransactions();
+      const subscriptionsData = await api.getAllSubscriptions();
 
       setAccounts(accountsData);
       setTransactions(transactionsData);
 
-      // Generar notificaciones basadas en análisis
-      const autoNotifications = generateNotifications(transactionsData, accountsData);
+      // Verificar si ya se generaron notificaciones hoy
+      const today = new Date().toDateString();
+      const lastGenerated = localStorage.getItem('lastNotificationDate');
 
-      // Combinar con notificaciones existentes (evitar duplicados)
-      setNotifications(prev => {
-        const existingIds = prev.map(n => n.id);
-        const newNotifications = autoNotifications.filter(n => !existingIds.includes(n.id));
-        return [...prev, ...newNotifications];
-      });
+      // Solo generar notificaciones si es un nuevo día
+      if (lastGenerated !== today) {
+        const autoNotifications = generateNotifications(transactionsData, accountsData);
+
+        // Generar notificaciones de suscripciones
+        const subscriptionNotifications = [];
+        const suscripcionesActivas = subscriptionsData.filter(sub => sub.status === 'active');
+
+        suscripcionesActivas.forEach(sub => {
+          if (sub.nextPayment) {
+            const fechaPago = new Date(sub.nextPayment);
+            const ahora = new Date();
+            const diferenciaDias = Math.ceil((fechaPago - ahora) / (1000 * 60 * 60 * 24));
+
+            // Notificación para pagos vencidos
+            if (fechaPago < ahora) {
+              subscriptionNotifications.push({
+                id: `sub-overdue-${sub.id}`,
+                title: '⚠️ Pago de suscripción vencido',
+                message: `El pago de ${sub.name} está vencido. Se procesará automáticamente cuando haya fondos.`,
+                type: 'warning',
+                isRead: false,
+                timestamp: new Date().toISOString()
+              });
+            }
+            // Notificación para pagos próximos (2 días o menos)
+            else if (diferenciaDias <= 2 && diferenciaDias >= 0) {
+              subscriptionNotifications.push({
+                id: `sub-upcoming-${sub.id}`,
+                title: `📅 Pago de ${sub.name} próximo`,
+                message: `Se cobrará $${sub.cost.toLocaleString('es-CO')} en ${diferenciaDias} día${diferenciaDias !== 1 ? 's' : ''}`,
+                type: 'info',
+                isRead: false,
+                timestamp: new Date().toISOString()
+              });
+            }
+          }
+        });
+
+        // Combinar notificaciones de análisis y suscripciones
+        const allNotifications = [...autoNotifications, ...subscriptionNotifications];
+
+        // Reemplazar notificaciones con las nuevas del día
+        setNotifications(allNotifications);
+        localStorage.setItem('lastNotificationDate', today);
+      }
     } catch (error) {
       console.error('Error al cargar datos:', error);
     }
@@ -118,11 +200,27 @@ const DashboardLayout = () => {
   useEffect(() => {
     loadDataAndGenerateNotifications();
 
-    const interval = setInterval(() => {
-      loadDataAndGenerateNotifications();
-    }, 5 * 60 * 1000);
+    // Listener para nuevas notificaciones dinámicas (ej: pagos procesados)
+    const handleNewNotification = (event) => {
+      setNotifications(prev => [event.detail, ...prev]);
+    };
 
-    return () => clearInterval(interval);
+    window.addEventListener('newNotification', handleNewNotification);
+
+    // Verificar cada hora si cambió el día
+    const interval = setInterval(() => {
+      const today = new Date().toDateString();
+      const lastGenerated = localStorage.getItem('lastNotificationDate');
+
+      if (lastGenerated !== today) {
+        loadDataAndGenerateNotifications();
+      }
+    }, 60 * 60 * 1000); // Cada hora
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('newNotification', handleNewNotification);
+    };
   }, []);
 
   return (
@@ -192,7 +290,7 @@ const DashboardLayout = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Notificacion alerts={notifications} markAsRead={markAsRead} deleteNotification={deleteNotification} />
+            <Notificacion alerts={notifications} markAsRead={markAsRead} deleteNotification={deleteNotification} markAllAsRead={markAllAsRead} />
             <IconName toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
           </div>
         </header>

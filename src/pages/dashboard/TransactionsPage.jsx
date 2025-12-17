@@ -20,6 +20,7 @@ export const TransactionsPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [customCategories, setCustomCategories] = useState([]);
     const [newTransaction, setNewTransaction] = useState({
         title: '',
         category: '',
@@ -37,7 +38,20 @@ export const TransactionsPage = () => {
     useEffect(() => {
         loadAccounts();
         loadTransactions();
+        loadCustomCategories();
     }, []);
+
+    const loadCustomCategories = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/categories');
+            if (response.ok) {
+                const data = await response.json();
+                setCustomCategories(data);
+            }
+        } catch (error) {
+            console.error('Error al cargar categorías:', error);
+        }
+    };
 
 
     const handleSearchChange = (event) => {
@@ -625,11 +639,16 @@ export const TransactionsPage = () => {
                                     required
                                 >
                                     <option value="">Selecciona una cuenta</option>
-                                    {accounts.map((account) => (
-                                        <option key={account.id} value={account.id}>
-                                            {account.name} ({account.type}) - {formatearMoneda(account.balance)}
-                                        </option>
-                                    ))}
+                                    {accounts.map((account) => {
+                                        const displayValue = account.type === 'Crédito'
+                                            ? `Cupo disponible: ${formatearMoneda(calculateAvailableCredit(account.creditLimit || 0, account.balance))}`
+                                            : formatearMoneda(account.balance);
+                                        return (
+                                            <option key={account.id} value={account.id}>
+                                                {account.name} ({account.type}) - {displayValue}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
 
@@ -653,12 +672,28 @@ export const TransactionsPage = () => {
                                             <option value="Alimentación">🍔 Alimentación</option>
                                             <option value="Capricho">🎁 Capricho</option>
                                             <option value="Otros">📦 Otros</option>
+                                            {customCategories
+                                                .filter(cat => cat.type === 'expense')
+                                                .map(cat => (
+                                                    <option key={cat.id} value={cat.name}>
+                                                        {cat.icon} {cat.name}
+                                                    </option>
+                                                ))
+                                            }
                                         </>
                                     ) : (
                                         <>
                                             <option value="Salario">💼 Salario</option>
                                             <option value="Pagos Varios">💳 Pagos Varios</option>
-                                            <option value="Préstamos">🏦 Préstamos</option>
+                                            <option value="Préstamos">💰 Préstamos</option>
+                                            {customCategories
+                                                .filter(cat => cat.type === 'income')
+                                                .map(cat => (
+                                                    <option key={cat.id} value={cat.name}>
+                                                        {cat.icon} {cat.name}
+                                                    </option>
+                                                ))
+                                            }
                                         </>
                                     )}
                                 </select>
@@ -859,11 +894,16 @@ export const TransactionsPage = () => {
                                     required
                                 >
                                     <option value="">Selecciona una cuenta</option>
-                                    {accounts.map((account) => (
-                                        <option key={account.id} value={account.id}>
-                                            {account.name} ({account.type}) - {formatearMoneda(account.balance)}
-                                        </option>
-                                    ))}
+                                    {accounts.map((account) => {
+                                        const displayValue = account.type === 'Crédito'
+                                            ? `Cupo disponible: ${formatearMoneda(calculateAvailableCredit(account.creditLimit || 0, account.balance))}`
+                                            : formatearMoneda(account.balance);
+                                        return (
+                                            <option key={account.id} value={account.id}>
+                                                {account.name} ({account.type}) - {displayValue}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
 
@@ -887,12 +927,28 @@ export const TransactionsPage = () => {
                                             <option value="Alimentación">🍔 Alimentación</option>
                                             <option value="Capricho">🎁 Capricho</option>
                                             <option value="Otros">📦 Otros</option>
+                                            {customCategories
+                                                .filter(cat => cat.type === 'expense')
+                                                .map(cat => (
+                                                    <option key={cat.id} value={cat.name}>
+                                                        {cat.icon} {cat.name}
+                                                    </option>
+                                                ))
+                                            }
                                         </>
                                     ) : (
                                         <>
                                             <option value="Salario">💼 Salario</option>
                                             <option value="Pagos Varios">💳 Pagos Varios</option>
-                                            <option value="Préstamos">🏦 Préstamos</option>
+                                            <option value="Préstamos">💰 Préstamos</option>
+                                            {customCategories
+                                                .filter(cat => cat.type === 'income')
+                                                .map(cat => (
+                                                    <option key={cat.id} value={cat.name}>
+                                                        {cat.icon} {cat.name}
+                                                    </option>
+                                                ))
+                                            }
                                         </>
                                     )}
                                 </select>

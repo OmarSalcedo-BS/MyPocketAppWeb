@@ -47,13 +47,46 @@ export const filterOutCreditPayments = (transactions, accounts) => {
     return transactions.filter(t => !isCreditPayment(t, accounts));
 };
 
-export const getCategoryTotals = (transactions, type = 'expense', accounts = []) => {
+/**
+ * Calcula el gasto total (o ingreso) por categoría filtrado por período
+ * @param {Array<Object>} transactions - La lista completa de transacciones
+ * @param {string} type - 'expense' o 'income'
+ * @param {Array} accounts - Lista de cuentas (para filtrar pagos de crédito)
+ * @param {string} period - 'day', 'month', 'year' o 'all' (por defecto 'all')
+ * @returns {Object} Un objeto donde la clave es la categoría y el valor es el monto total
+ */
+export const getCategoryTotals = (transactions, type = 'expense', accounts = [], period = 'all') => {
     // Filtrar pagos de crédito si se proporcionan cuentas
     const filteredByPayments = accounts.length > 0
         ? filterOutCreditPayments(transactions, accounts)
         : transactions;
 
-    const filteredTransactions = filteredByPayments.filter(transaction => transaction.type === type);
+    // Filtrar por período
+    const now = new Date();
+    const currentDay = now.getDate();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const filteredByPeriod = filteredByPayments.filter(transaction => {
+        if (period === 'all') return true;
+
+        const tDate = new Date(transaction.date);
+
+        if (period === 'day') {
+            return tDate.getDate() === currentDay &&
+                tDate.getMonth() === currentMonth &&
+                tDate.getFullYear() === currentYear;
+        } else if (period === 'month') {
+            return tDate.getMonth() === currentMonth &&
+                tDate.getFullYear() === currentYear;
+        } else if (period === 'year') {
+            return tDate.getFullYear() === currentYear;
+        }
+
+        return true;
+    });
+
+    const filteredTransactions = filteredByPeriod.filter(transaction => transaction.type === type);
 
     const totals = filteredTransactions.reduce((acc, transaction) => {
         const category = transaction.category;
@@ -102,21 +135,6 @@ export const getCreditBalance = (transactions) => {
     const totalCredit = creditTransactions.reduce((acc, transaction) => acc + parseFloat(transaction.amount), 0);
     return totalCredit;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 export const generateNotifications = (transactions, accounts) => {
