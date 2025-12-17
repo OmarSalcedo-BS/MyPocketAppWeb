@@ -1,16 +1,16 @@
 {
   "users": [
     {
-      "id": "1",
-      "name": "Usuario Demo",
-      "email": "demo@test.com",
-      "password": "demo123"
+      "id": "b85c",
+      "name": "Omar Dario Salcedo ",
+      "email": "salcedo@gmail.com",
+      "password": "123456"
     },
     {
-      "id": "b85c",
-      "name": "Omar Salcedo",
-      "email": "omar2@test.com",
-      "password": "Soldado1"
+      "password": "pedrito123",
+      "id": "deb5",
+      "name": "Pedro nel garcia",
+      "email": "pedrito@gmail.com"
     }
   ],
   "accounts": [
@@ -18,7 +18,7 @@
       "id": "48e0",
       "name": "Efectivo",
       "type": "Efectivo",
-      "balance": 350000,
+      "balance": 6061500,
       "icon": "DollarSign",
       "color": "bg-green-500"
     },
@@ -26,9 +26,20 @@
       "id": "2bc8",
       "name": "Nequi",
       "type": "Banco",
-      "balance": 2500000,
+      "balance": 10076900,
       "icon": "Landmark",
       "color": "bg-purple-500"
+    },
+    {
+      "id": "0fef",
+      "name": "Tarjeta NU",
+      "type": "Crédito",
+      "balance": 0,
+      "icon": "Landmark",
+      "color": "bg-purple-500",
+      "interestRate": 8,
+      "maxInstallments": 12,
+      "creditLimit": 2500000
     }
   ],
   "transactions": [
@@ -58,15 +69,6 @@
       "type": "income",
       "date": "2025-11-29T10:30:00.000Z",
       "accountId": "2bc8"
-    },
-    {
-      "id": "T04",
-      "title": "Propina por Servicio Rápido",
-      "category": "Pagos Varios",
-      "amount": 20000,
-      "type": "income",
-      "date": "2025-11-28T11:00:00.000Z",
-      "accountId": "48e0"
     },
     {
       "id": "T05",
@@ -104,21 +106,11 @@
       "date": "2025-10-30T10:00:00.000Z",
       "accountId": "2bc8"
     },
-
-    {
-      "id": "T09",
-      "title": "Compra de Silla Ergonómica",
-      "category": "Capricho",
-      "amount": 800000,
-      "type": "expense",
-      "date": "2025-12-07T08:00:00.000Z",
-      "accountId": "2bc8"
-    },
     {
       "id": "T10",
       "title": "Almuerzo y Café de Día",
       "category": "Alimentación",
-      "amount": 40000,
+      "amount": 8000,
       "type": "expense",
       "date": "2025-12-07T07:30:00.000Z",
       "accountId": "48e0"
@@ -167,6 +159,244 @@
       "type": "expense",
       "date": "2025-11-18T16:00:00.000Z",
       "accountId": "48e0"
+    },
+    {
+      "id": "9b1d",
+      "title": "Compra moto primera cuota",
+      "category": "Transporte",
+      "amount": 2000000,
+      "type": "expense",
+      "date": "2025-12-08T05:05:01.325Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "6ad8",
+      "title": "Pago por proyecto de código abierto",
+      "category": "Salario",
+      "amount": 2850700,
+      "type": "income",
+      "date": "2025-12-08T05:06:31.408Z",
+      "accountId": "2bc8"
+    },
+    {
+      "id": "9b8f",
+      "title": "Compra de componentes para nueva Pc",
+      "category": "Capricho",
+      "amount": 300000,
+      "type": "expense",
+      "date": "2025-12-08T05:31:41.751Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "8e25",
+      "title": "Pago de proyecto CRUD",
+      "category": "Pagos Varios",
+      "amount": 4000000,
+      "type": "income",
+      "date": "2025-12-08T05:41:19.273Z",
+      "accountId": "48e0"
+    },
+    {
+      "id": "f9dc",
+      "title": "Programa de ventas para cliente",
+      "category": "Salario",
+      "amount": 8000000,
+      "type": "income",
+      "date": "2025-12-08T08:35:21.597Z",
+      "accountId": "2bc8",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "c3fc",
+      "title": "Pago por landing Page",
+      "category": "Salario",
+      "amount": 5000000,
+      "type": "income",
+      "date": "2025-12-17T05:01:27.619Z",
+      "accountId": "48e0",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "83af",
+      "title": "Pago automático - HBO MAX",
+      "category": "Suscripciones",
+      "amount": 29900,
+      "type": "expense",
+      "date": "2025-12-17T06:00:45.706Z",
+      "accountId": "2bc8",
+      "subscriptionId": "4c7e",
+      "isAutomatic": true
+    },
+    {
+      "id": "de02",
+      "title": "Pago automático - Google AI Pro",
+      "category": "Suscripciones",
+      "amount": 78800,
+      "type": "expense",
+      "date": "2025-12-17T06:08:00.410Z",
+      "accountId": "2bc8",
+      "subscriptionId": "3e1b",
+      "isAutomatic": true
+    },
+    {
+      "id": "c778",
+      "title": "Pago automático - Gamepass",
+      "category": "Suscripciones",
+      "amount": 49900,
+      "type": "expense",
+      "date": "2025-12-17T06:22:27.688Z",
+      "accountId": "2bc8",
+      "subscriptionId": "sub001",
+      "isAutomatic": true
+    },
+    {
+      "id": "ced0",
+      "title": "Salchipapas",
+      "category": "Alimentación",
+      "amount": 25500,
+      "type": "expense",
+      "date": "2025-12-17T06:32:06.614Z",
+      "accountId": "48e0",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "38fe",
+      "title": "Reactivación - Google AI Pro",
+      "category": "Suscripciones",
+      "amount": 78800,
+      "type": "expense",
+      "date": "2025-12-17T06:33:37.876Z",
+      "accountId": "2bc8",
+      "subscriptionId": "3e1b",
+      "isAutomatic": false
+    },
+    {
+      "id": "e004",
+      "title": "Pago por página web",
+      "category": "Pagos Varios",
+      "amount": 500000,
+      "type": "income",
+      "date": "2025-11-04T00:00:00.000Z",
+      "accountId": "48e0",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "b773",
+      "title": "Compra equipo nuevo de audio",
+      "category": "Capricho",
+      "amount": 1250000,
+      "type": "expense",
+      "date": "2025-12-17T06:36:27.002Z",
+      "accountId": "0fef",
+      "installments": 6,
+      "interestAmount": 600000
+    },
+    {
+      "id": "f492",
+      "title": "Pago 1 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 800000,
+      "type": "income",
+      "date": "2025-12-17T06:38:29.445Z",
+      "accountId": "0fef",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "ff9d",
+      "title": "Pago 1 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 308333,
+      "type": "income",
+      "date": "2025-12-17T06:45:22.532Z",
+      "accountId": "0fef",
+      "installments": 1,
+      "interestAmount": 0
+    },
+    {
+      "id": "a196",
+      "title": "Pago 1 cuota(s) - Tarjeta NU",
+      "category": "Pagos Varios",
+      "amount": 141667,
+      "type": "income",
+      "date": "2025-12-17T06:45:38.593Z",
+      "accountId": "0fef",
+      "installments": 1,
+      "interestAmount": 0
+    }
+  ],
+  "categories": [],
+  "subscriptions": [
+    {
+      "id": "sub001",
+      "name": "Gamepass",
+      "cost": 49900,
+      "frecuency": "mensual",
+      "nextPayment": "2026-01-17T06:22:27.767Z",
+      "status": "active",
+      "accountId": "2bc8",
+      "description": "Suscripción de juegos Xbox",
+      "createdAt": "2025-12-17T05:20:58.101Z",
+      "cancelledAt": "2025-12-17T06:03:04.331Z",
+      "reactivatedAt": "2025-12-17T06:03:10.500Z",
+      "lastPaymentDate": "2025-12-17T06:22:27.767Z",
+      "lastPaymentAmount": 49900
+    },
+    {
+      "id": "sub002",
+      "name": "Netflix",
+      "cost": 29900,
+      "frecuency": "mensual",
+      "nextPayment": "2026-01-17T06:00:19.267Z",
+      "status": "active",
+      "accountId": "2bc8",
+      "description": "Plan básico de streaming",
+      "createdAt": "2025-12-17T05:20:58.101Z",
+      "cancelledAt": "2025-12-17T06:00:15.401Z",
+      "reactivatedAt": "2025-12-17T06:00:19.267Z"
+    },
+    {
+      "id": "4c7e",
+      "name": "HBO MAX",
+      "cost": 29900,
+      "frecuency": "mensual",
+      "accountId": "2bc8",
+      "description": "Entretenimiento",
+      "nextPayment": "2026-01-17T06:00:45.901Z",
+      "status": "active",
+      "createdAt": "2025-12-17T05:57:31.763Z",
+      "lastPaymentDate": "2025-12-17T06:00:45.901Z",
+      "lastPaymentAmount": 29900
+    },
+    {
+      "id": "3e1b",
+      "name": "Google AI Pro",
+      "cost": 78800,
+      "frecuency": "mensual",
+      "accountId": "2bc8",
+      "description": "Pago de agente y uso de gemini",
+      "nextPayment": "2026-01-17T06:33:37.927Z",
+      "status": "active",
+      "createdAt": "2025-12-19T06:07:07.690Z",
+      "lastPaymentDate": "2025-12-17T06:33:37.927Z",
+      "lastPaymentAmount": 78800,
+      "cancelledAt": "2025-12-17T06:25:57.213Z",
+      "reactivatedAt": "2025-12-17T06:33:37.927Z"
+    },
+    {
+      "id": "sub003",
+      "name": "Amuse",
+      "cost": 180000,
+      "frecuency": "anual",
+      "accountId": "2bc8",
+      "description": "Musical partner",
+      "nextPayment": "2025-12-19T00:00:00.000Z",
+      "status": "active",
+      "createdAt": "2025-12-19T06:07:07.690Z"
     }
   ]
 }

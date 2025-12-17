@@ -4,6 +4,7 @@ export const endpoints = {
     users: API_URL + "users",
     accounts: API_URL + "accounts",
     transactions: API_URL + "transactions",
+    subscriptions: API_URL + "subscriptions",
 };
 
 const httpGet = async (url) => {
@@ -101,6 +102,24 @@ export const api = {
         }
     },
 
+    updateUser: async (id, user) => {
+        try {
+            return await httpPut(`${endpoints.users}/${id}`, user);
+        } catch (error) {
+            console.error('Error al actualizar usuario:', error);
+            throw error;
+        }
+    },
+
+    deleteUser: async (id) => {
+        try {
+            return await httpDelete(`${endpoints.users}/${id}`);
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            throw error;
+        }
+    },
+
     getAllAccounts: async () => {
         try {
             return await httpGet(endpoints.accounts);
@@ -187,6 +206,51 @@ export const api = {
             return await httpDelete(`${endpoints.transactions}/${id}`);
         } catch (error) {
             console.error('Error al eliminar la transacción:', error);
+            throw error;
+        }
+    },
+
+    getAllSubscriptions: async () => {
+        try {
+            return await httpGet(endpoints.subscriptions);
+        } catch (error) {
+            console.error('Error al obtener las suscripciones:', error);
+            throw error;
+        }
+    },
+
+    getSubscriptionById: async (id) => {
+        try {
+            return await httpGet(`${endpoints.subscriptions}/${id}`);
+        } catch (error) {
+            console.error('Error al obtener la suscripción:', error);
+            throw error;
+        }
+    },
+
+    createSubscription: async (subscriptionData) => {
+        try {
+            return await httpPost(endpoints.subscriptions, subscriptionData);
+        } catch (error) {
+            console.error('Error al crear la suscripción:', error);
+            throw error;
+        }
+    },
+
+    updateSubscription: async (id, subscriptionData) => {
+        try {
+            return await httpPut(`${endpoints.subscriptions}/${id}`, subscriptionData);
+        } catch (error) {
+            console.error('Error al actualizar la suscripción:', error);
+            throw error;
+        }
+    },
+
+    deleteSubscription: async (id) => {
+        try {
+            return await httpDelete(`${endpoints.subscriptions}/${id}`);
+        } catch (error) {
+            console.error('Error al eliminar la suscripción:', error);
             throw error;
         }
     },

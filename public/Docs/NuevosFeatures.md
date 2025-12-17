@@ -44,9 +44,45 @@ Implementación:
 - ✅ Visualización de últimos 5 movimientos en Home
 - ✅ Integración con SweetAlert2 para notificaciones
 
-IDEA-003 [ESTADO: PENDIENTE 📅] FEATURE DISPONIBLE 🟢:
+IDEA-003 [ESTADO: COMPLETADO 🏆] FEATURE ASIGNADO 🟥: Omar Salcedo
+
 Fecha: 2025-11-18
+Fecha Completado: 2025-12-17
 Categoría: Configuración de la app
 Idea: Crear módulos para la administración de la cuenta del usuario.
 Necesidad: Tener un módulo para la administración de la cuenta del usuario.
 MVP Mínimo: Permitir la modificacion de los datos, personalización de la app y la eliminación de la cuenta.
+Implementación:
+
+- ✅ Sistema de pestañas (Mi Cuenta, Personalización, Seguridad)
+- ✅ Información personal editable
+- ✅ Categorías personalizadas con emojis
+- ✅ Cambio de contraseña
+- ✅ Eliminación de cuenta
+- ✅ Modo oscuro persistente
+
+IDEA-004 [ESTADO: COMPLETADO 🏆] FEATURE ASIGNADO 🟥: Omar Salcedo
+
+Fecha: 2025-12-17
+Fecha Completado: 2025-12-17
+Categoría: Suscripciones / Automatización
+Idea: Sistema completo de gestión de suscripciones con automatización de pagos.
+Necesidad: Gestionar suscripciones recurrentes (Netflix, Spotify, etc.) con pagos automáticos y notificaciones.
+MVP Mínimo: Crear, editar, cancelar y reactivar suscripciones con procesamiento automático de pagos.
+Implementación:
+
+- ✅ Página completa de suscripciones (SubscriptionsPage.jsx)
+- ✅ Modal de creación/edición de suscripciones
+- ✅ Servicio de automatización (subscriptionService.js)
+- ✅ Procesamiento automático de pagos mensuales
+- ✅ Verificación cada hora de pagos vencidos
+- ✅ Sistema de notificaciones no intrusivas (campanita)
+- ✅ Estados: active, suspended, cancelled
+- ✅ Reactivación con pago inmediato
+- ✅ Protección anti-duplicados (4 capas)
+- ✅ Alertas de pagos próximos (2 días antes)
+- ✅ Suspensión automática por fondos insuficientes
+- ✅ Estadísticas de gasto mensual proyectado
+- ✅ Botón "Actualizar" con resumen inteligente
+- ✅ Integración con sistema de transacciones
+- ✅ Actualización automática de balances
